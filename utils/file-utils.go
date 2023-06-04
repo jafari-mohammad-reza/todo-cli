@@ -107,3 +107,27 @@ func RemoveAllDataFromFile(dataFile string) {
 	CreateDataFile()
 	println("all data cleared")
 }
+func UpdateJSONProperty(filePath string, data []map[string]interface{}, key string, newValue interface{}, compareKey string, update func(item *map[string]interface{}, val interface{})) {
+	updated := false
+	for _, item := range data {
+		if item[compareKey] == key {
+			updated = true
+			update(&item, newValue)
+			break
+		}
+	}
+
+	if updated {
+		dataBytes, err := json.Marshal(data)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		err = os.WriteFile(filePath, dataBytes, 0777)
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+		fmt.Println("Key not found")
+	}
+}

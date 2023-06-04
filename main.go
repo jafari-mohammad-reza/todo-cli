@@ -14,6 +14,7 @@ func main() {
 	add := flag.Bool("add", false, "add new todo")
 	empty := flag.Bool("empty", false, "remove all data")
 	complete := flag.Int("complete", 0, "complete a task")
+	list := flag.Bool("list", false, "get list of tasks")
 	flag.Parse()
 	todo := &todos.Todos{}
 	data, err := utils.ReadFromDataFile[[]todos.Item](utils.GetSaveFilePath())
@@ -36,6 +37,8 @@ func main() {
 		if completeErr != nil {
 			return
 		}
+	case *list:
+		todo.Print()
 	default:
 		log.Fatal("Invalid Command")
 	}
