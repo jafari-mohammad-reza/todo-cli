@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -28,14 +29,22 @@ func createSaveDir() string {
 	}
 	return appDir
 }
-
+func GetSaveFilePath() string {
+	return filepath.Join(createSaveDir(), "data.json")
+}
 func CreateDataFile() string {
-	dataFile := filepath.Join(createSaveDir(), "data.json")
+	dataFile := GetSaveFilePath()
 	if _, err := os.Stat(dataFile); os.IsNotExist(err) {
 		file, createErr := os.Create(dataFile)
 		if createErr != nil {
 			panic(createErr)
 		}
+
+		_, writeErr := file.WriteString("[]")
+		if writeErr != nil {
+			panic(writeErr)
+		}
+
 		closeErr := file.Close()
 		if closeErr != nil {
 			return ""
@@ -43,28 +52,44 @@ func CreateDataFile() string {
 	}
 	return dataFile
 }
-func ReadFromDataFile[T []any](dataFile string) T {
+
+func ReadFromDataFile[T any](dataFile string) (T, error) {
 	file, readErr := os.ReadFile(dataFile)
 	if readErr != nil {
-		panic(readErr)
+		var zero T
+		return zero, readErr
 	}
+
+	if len(file) == 0 {
+		var zero T
+		return zero, fmt.Errorf("empty JSON input")
+	}
+
 	var data T
 	unmarshalErr := json.Unmarshal(file, &data)
 	if unmarshalErr != nil {
-		return nil
+		var zero T
+		return zero, unmarshalErr
 	}
-	return data
+	return data, nil
 }
-func AppendDataToFile[T any](dataFile string, newData T) []any {
-	data := ReadFromDataFile(dataFile)
+
+func AppendDataToFile[S []any, T any](dataFile string, newData T) (S, error) {
+	data, readErr := ReadFromDataFile[S](dataFile)
+	if readErr != nil {
+		return data, readErr
+	}
 	data = append(data, newData)
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return data, err
 	}
-	err = os.WriteFile(dataFile, dataBytes, 0644)
+	err = os.WriteFile(dataFile, dataBytes, 0777)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+
+		return data, err
 	}
-	return data
+	return data, nil
 }

@@ -6,17 +6,21 @@ import (
 	"time"
 )
 
-type item struct {
+type Item struct {
 	Title     string
 	IsDone    bool
 	CreatedAt time.Time
 	DoneAt    time.Time
 }
-type Todos []item
+type Todos []Item
 
 func (t *Todos) AddTask(task string) {
-	newTodo := item{Title: task, IsDone: false, CreatedAt: time.Now(), DoneAt: time.Time{}}
+	newTodo := Item{Title: task, IsDone: false, CreatedAt: time.Now(), DoneAt: time.Time{}}
 	*t = append(*t, newTodo)
+	_, err := utils.AppendDataToFile(utils.GetSaveFilePath(), newTodo)
+	if err != nil {
+		return
+	}
 }
 func (t *Todos) CompleteTask(index int) error {
 	ls := *t
