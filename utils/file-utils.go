@@ -13,18 +13,24 @@ func getHomeDir() string {
 	}
 	return home
 }
+func getSaveDirectory() string {
+	return filepath.Join(getHomeDir(), ".local", "todo-cli")
+}
 
-func createSaveDir(home string) string {
-	appDir := filepath.Join(home, ".local", "todo-cli")
-	err := os.MkdirAll(appDir, 0755)
-	if err != nil {
-		panic(err)
+func createSaveDir() string {
+	appDir := getSaveDirectory()
+
+	if _, err := os.Stat(appDir); os.IsNotExist(err) {
+		err := os.MkdirAll(appDir, 0755)
+		if err != nil {
+			panic(err)
+		}
 	}
 	return appDir
 }
 
-func createDataFile(saveDir string) string {
-	dataFile := filepath.Join(saveDir, "data.json")
+func CreateDataFile() string {
+	dataFile := filepath.Join(createSaveDir(), "data.json")
 	if _, err := os.Stat(dataFile); os.IsNotExist(err) {
 		file, createErr := os.Create(dataFile)
 		if createErr != nil {

@@ -2,8 +2,8 @@ package todo
 
 import (
 	"errors"
+	"github.com/jafari-mohammad-reza/todo-cli/utils"
 	"time"
-	"todo-cli/utils"
 )
 
 type item struct {
@@ -35,7 +35,4 @@ func (t *Todos) DeleteTask(index int) error {
 	}
 	utils.Remove(ls, index)
 	return nil
-}
-func (t *Todos) LoadData() {
-
 }
