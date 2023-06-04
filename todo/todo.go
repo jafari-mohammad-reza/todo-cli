@@ -30,6 +30,10 @@ func (t *Todos) CompleteTask(index int) error {
 	task := ls[index-1]
 	task.IsDone = true
 	task.DoneAt = time.Now()
+	_, err := utils.AppendDataToFile(utils.GetSaveFilePath(), task)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (t *Todos) DeleteTask(index int) error {

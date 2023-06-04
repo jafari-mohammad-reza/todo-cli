@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -92,4 +93,17 @@ func AppendDataToFile[S []any, T any](dataFile string, newData T) (S, error) {
 		return data, err
 	}
 	return data, nil
+}
+
+func RemoveAllDataFromFile(dataFile string) {
+	_, err := os.ReadFile(dataFile)
+	if os.IsNotExist(err) {
+		log.Fatal("no data exist")
+	}
+	removeErr := os.RemoveAll(dataFile)
+	if removeErr != nil {
+		return
+	}
+	CreateDataFile()
+	println("all data cleared")
 }
